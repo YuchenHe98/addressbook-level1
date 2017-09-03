@@ -71,6 +71,7 @@ public class AddressBook {
     private static final String MESSAGE_COMMAND_HELP_PARAMETERS = "\tParameters: %1$s";
     private static final String MESSAGE_COMMAND_HELP_EXAMPLE = "\tExample: %1$s";
     private static final String MESSAGE_DELETE_PERSON_SUCCESS = "Deleted Person: %1$s";
+    private static final String MESSAGE_REMOVE_PERSON_SUCCESS = "Removed Person: %1$s";
     private static final String MESSAGE_DISPLAY_PERSON_DATA = "%1$s  Phone Number: %2$s  Email: %3$s";
     private static final String MESSAGE_DISPLAY_LIST_ELEMENT_INDEX = "%1$d. ";
     private static final String MESSAGE_GOODBYE = "Exiting Address Book... Good bye!";
@@ -128,6 +129,9 @@ public class AddressBook {
     private static final String COMMAND_HELP_WORD = "help";
     private static final String COMMAND_HELP_DESC = "Shows program usage instructions.";
     private static final String COMMAND_HELP_EXAMPLE = COMMAND_HELP_WORD;
+
+    private static final String COMMAND_REMOVE_WORD = "remove";
+
 
     private static final String COMMAND_EXIT_WORD = "exit";
     private static final String COMMAND_EXIT_DESC = "Exits the program.";
@@ -386,6 +390,8 @@ public class AddressBook {
             return executeClearAddressBook();
         case COMMAND_HELP_WORD:
             return getUsageInfoForAllCommands();
+        case COMMAND_REMOVE_WORD:
+            return executeRemovePerson(commandArgs);
         case COMMAND_EXIT_WORD:
             executeExitProgramRequest();
         default:
@@ -1169,4 +1175,33 @@ public class AddressBook {
         return new ArrayList<>(Arrays.asList(toSplit.trim().split("\\s+")));
     }
 
+    /* New method for removing the person as ordered */
+
+    private static String executeRemovePerson(String commandArgs){
+        String[] currentPerson;
+        int i;
+        currentPerson = ALL_PERSONS.get(0);
+        int numPeople = 0;
+        int personIndex = 0;
+        for(i = 0; i < ALL_PERSONS.size(); i++){
+            if(currentPerson[i].equals(commandArgs)){
+                numPeople++;
+                personIndex = i;
+            }
+        }
+        if(numPeople == 0){
+            return "No requested person";
+        }
+        else if(numPeople == 1){
+            executeDeletePerson(commandArgs);
+            return getMessageForSuccessfulRemove(ALL_PERSONS.get(personIndex));
+        }
+        else{
+            return "More than one person selected. Please resolve the names first";
+        }
+    }
+
+    private static String getMessageForSuccessfulRemove(String[] deletedPerson) {
+        return String.format(MESSAGE_REMOVE_PERSON_SUCCESS, getMessageForFormattedPersonData(deletedPerson));
+    }
 }
