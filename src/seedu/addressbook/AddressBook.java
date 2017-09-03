@@ -91,7 +91,8 @@ public class AddressBook {
     private static final String MESSAGE_STORAGE_FILE_CREATED = "Created new empty storage file: %1$s";
     private static final String MESSAGE_WELCOME = "Welcome to your Address Book!";
     private static final String MESSAGE_USING_DEFAULT_FILE = "Using default storage file : " + DEFAULT_STORAGE_FILEPATH;
-
+    private static final String MESSAGE_ERROR_CANNOT_FIND_REQUESTED_REMOVED_PERSON = "No requested person";
+    private static final String MESSAGE_MORE_THAN_ONE_PERSON = "More than one person selected. Please resolve the names first";
     // These are the prefix strings to define the data type of a command parameter
     private static final String PERSON_DATA_PREFIX_PHONE = "p/";
     private static final String PERSON_DATA_PREFIX_EMAIL = "e/";
@@ -131,6 +132,8 @@ public class AddressBook {
     private static final String COMMAND_HELP_EXAMPLE = COMMAND_HELP_WORD;
 
     private static final String COMMAND_REMOVE_WORD = "remove";
+    private static final String COMMAND_REMOVE_DESC = "Removes the info of the person specified.";
+    private static final String COMMAND_REMOVE_EXAMPLE = COMMAND_REMOVE_WORD+" John Doe";
 
 
     private static final String COMMAND_EXIT_WORD = "exit";
@@ -1099,7 +1102,8 @@ public class AddressBook {
                 + getUsageInfoForDeleteCommand() + LS
                 + getUsageInfoForClearCommand() + LS
                 + getUsageInfoForExitCommand() + LS
-                + getUsageInfoForHelpCommand();
+                + getUsageInfoForHelpCommand() + LS
+                + getUsageInfoForRemoveCommand();
     }
 
     /** Returns the string for showing 'add' command usage instruction */
@@ -1147,6 +1151,12 @@ public class AddressBook {
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_EXIT_EXAMPLE);
     }
 
+    /** Returns the string for showing 'remove' command usage instruction */
+    private static String getUsageInfoForRemoveCommand() {
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_REMOVE_WORD, COMMAND_REMOVE_DESC)
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_REMOVE_EXAMPLE);
+    }
+
 
     /*
      * ============================
@@ -1184,24 +1194,28 @@ public class AddressBook {
         int numPeople = 0;
         int personIndex = 0;
         for(i = 0; i < ALL_PERSONS.size(); i++){
-            if(currentPerson[i].equals(commandArgs)){
+            currentPerson = ALL_PERSONS.get(i);
+            if(getNameFromPerson(currentPerson).equals(commandArgs)){
                 numPeople++;
                 personIndex = i;
             }
         }
+        System.out.println(personIndex);
         if(numPeople == 0){
-            return "No requested person";
+            return MESSAGE_ERROR_CANNOT_FIND_REQUESTED_REMOVED_PERSON;
         }
+
         else if(numPeople == 1){
-            executeDeletePerson(commandArgs);
-            return getMessageForSuccessfulRemove(ALL_PERSONS.get(personIndex));
+            String result = getMessageForSuccessfulRemove(ALL_PERSONS.get(personIndex));
+            deletePersonFromAddressBook(currentPerson);
+            return result;
         }
         else{
-            return "More than one person selected. Please resolve the names first";
+            return MESSAGE_MORE_THAN_ONE_PERSON;
         }
     }
 
-    private static String getMessageForSuccessfulRemove(String[] deletedPerson) {
-        return String.format(MESSAGE_REMOVE_PERSON_SUCCESS, getMessageForFormattedPersonData(deletedPerson));
+    private static String getMessageForSuccessfulRemove(String[] removedPerson) {
+        return String.format(MESSAGE_REMOVE_PERSON_SUCCESS, getMessageForFormattedPersonData(removedPerson));
     }
 }
